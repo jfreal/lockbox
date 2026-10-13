@@ -1,0 +1,19 @@
+<Application x:Class="Lockbox.App.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="clr-namespace:Lockbox.App.Controls"
+             ShutdownMode="OnMainWindowClose">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- Slot 0 is swapped between light and dark by ThemeService. -->
+                <ResourceDictionary Source="Theme/Colors.Light.xaml" />
+                <ResourceDictionary Source="Theme/Styles.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <ui:BoolToVisibility x:Key="BoolToVisibility" />
+            <ui:PresentToVisibility x:Key="PresentToVisibility" />
+            <ui:StrengthSegmentOpacity x:Key="StrengthSegmentOpacity" />
+            <ui:DividerVisibility x:Key="DividerVisibility" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

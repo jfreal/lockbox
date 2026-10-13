@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="Color.WindowBg">#161618</Color>
+    <Color x:Key="Color.Shadow">#000000</Color>
+
+    <SolidColorBrush x:Key="Brush.WindowBg" Color="#161618" />
+    <SolidColorBrush x:Key="Brush.SidebarBg" Color="#202023" />
+    <SolidColorBrush x:Key="Brush.CardBg" Color="#232326" />
+    <SolidColorBrush x:Key="Brush.CardBorder" Color="#2E2E33" />
+    <SolidColorBrush x:Key="Brush.Separator" Color="#2E2E33" />
+
+    <SolidColorBrush x:Key="Brush.Text" Color="#F5F5F7" />
+    <SolidColorBrush x:Key="Brush.TextSecondary" Color="#A1A1A6" />
+    <SolidColorBrush x:Key="Brush.TextTertiary" Color="#6E6E73" />
+
+    <SolidColorBrush x:Key="Brush.Accent" Color="#0A84FF" />
+    <SolidColorBrush x:Key="Brush.AccentHover" Color="#3395FF" />
+    <SolidColorBrush x:Key="Brush.AccentPressed" Color="#0A76E6" />
+    <SolidColorBrush x:Key="Brush.AccentSoft" Color="#1B2B40" />
+    <SolidColorBrush x:Key="Brush.OnAccent" Color="#FFFFFF" />
+
+    <SolidColorBrush x:Key="Brush.Danger" Color="#FF453A" />
+    <SolidColorBrush x:Key="Brush.DangerHover" Color="#FF5A50" />
+    <SolidColorBrush x:Key="Brush.Success" Color="#32D74B" />
+    <SolidColorBrush x:Key="Brush.Warning" Color="#FFB340" />
+
+    <SolidColorBrush x:Key="Brush.InputBg" Color="#1B1B1E" />
+    <SolidColorBrush x:Key="Brush.InputBorder" Color="#3A3A3F" />
+    <SolidColorBrush x:Key="Brush.SearchBg" Color="#2C2C30" />
+
+    <SolidColorBrush x:Key="Brush.Hover" Color="#12FFFFFF" />
+    <SolidColorBrush x:Key="Brush.Pressed" Color="#1FFFFFFF" />
+    <SolidColorBrush x:Key="Brush.Selected" Color="#333338" />
+    <SolidColorBrush x:Key="Brush.SecondaryButton" Color="#323236" />
+    <SolidColorBrush x:Key="Brush.SecondaryButtonHover" Color="#3C3C41" />
+
+    <SolidColorBrush x:Key="Brush.Overlay" Color="#99000000" />
+    <SolidColorBrush x:Key="Brush.ToastBg" Color="#F2F5F5F7" />
+    <SolidColorBrush x:Key="Brush.ToastText" Color="#1D1D1F" />
+    <SolidColorBrush x:Key="Brush.ScrollThumb" Color="#40FFFFFF" />
+
+    <sys:Double xmlns:sys="clr-namespace:System;assembly=System.Runtime" x:Key="Shadow.Opacity">0.35</sys:Double>
+</ResourceDictionary>

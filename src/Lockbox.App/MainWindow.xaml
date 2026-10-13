@@ -1,0 +1,45 @@
+<Window x:Class="Lockbox.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Lockbox.App.ViewModels"
+        xmlns:v="clr-namespace:Lockbox.App.Views"
+        Title="Lockbox"
+        Width="1180" Height="760" MinWidth="900" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Brush.WindowBg}"
+        FontFamily="{StaticResource Font.Text}"
+        Foreground="{DynamicResource Brush.Text}"
+        UseLayoutRounding="True"
+        TextOptions.TextFormattingMode="Ideal">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Views/SheetTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <DataTemplate DataType="{x:Type vm:SetupViewModel}"><v:SetupView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:UnlockViewModel}"><v:UnlockView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:VaultViewModel}"><v:VaultView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:ImportViewModel}"><v:ImportView /></DataTemplate>
+            <DataTemplate DataType="{x:Type vm:SettingsViewModel}"><v:SettingsView /></DataTemplate>
+        </ResourceDictionary>
+    </Window.Resources>
+
+    <Grid x:Name="Root" Background="{DynamicResource Brush.WindowBg}">
+        <ContentControl Content="{Binding CurrentScreen}" Focusable="False" IsTabStop="False" />
+
+        <!-- Sheet: dims the screen and floats a card in the middle. -->
+        <Grid Visibility="{Binding Sheet, Converter={StaticResource PresentToVisibility}}">
+            <Border Background="{DynamicResource Brush.Overlay}" MouseLeftButtonDown="OnOverlayClicked" />
+            <ContentControl Content="{Binding Sheet}" HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False" IsTabStop="False" />
+        </Grid>
+
+        <Border VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,28" MaxWidth="560"
+                Background="{DynamicResource Brush.ToastBg}" CornerRadius="20" Padding="18,10" IsHitTestVisible="False"
+                Visibility="{Binding Toast, Converter={StaticResource PresentToVisibility}}">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.18" />
+            </Border.Effect>
+            <TextBlock Text="{Binding Toast}" Foreground="{DynamicResource Brush.ToastText}" FontSize="13" TextWrapping="Wrap" TextAlignment="Center" />
+        </Border>
+    </Grid>
+</Window>

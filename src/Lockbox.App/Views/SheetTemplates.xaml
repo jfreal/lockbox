@@ -1,0 +1,107 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vm="clr-namespace:Lockbox.App.ViewModels"
+                    xmlns:ui="clr-namespace:Lockbox.App.Controls">
+
+    <DataTemplate DataType="{x:Type vm:TextPromptSheet}">
+        <Border Style="{StaticResource Sheet}" Width="420">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Title}" Text="{Binding Title}" />
+                <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding Message}" Margin="0,6,0,0"
+                           Visibility="{Binding Message, Converter={StaticResource PresentToVisibility}}" />
+                <TextBox Style="{StaticResource Input}" Margin="0,18,0,0" Tag="{Binding Placeholder}" ui:Assist.FocusOnLoad="True"
+                         Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Style="{StaticResource Text.Error}" Text="{Binding Error}" Margin="2,10,0,0"
+                           Visibility="{Binding Error, Converter={StaticResource PresentToVisibility}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+                    <Button Style="{StaticResource Button.Secondary}" Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Style="{StaticResource Button.Primary}" Content="{Binding ConfirmText}" Margin="10,0,0,0" Command="{Binding ConfirmCommand}" IsDefault="True" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:ConfirmSheet}">
+        <Border Style="{StaticResource Sheet}" Width="440">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Title}" Text="{Binding Title}" TextWrapping="Wrap" />
+                <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding Message}" Margin="0,8,0,0" />
+                <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding Detail}" Margin="0,8,0,0"
+                           Visibility="{Binding Detail, Converter={StaticResource PresentToVisibility}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,26,0,0">
+                    <Button Style="{StaticResource Button.Secondary}" Content="{Binding CancelText}" Command="{Binding CancelCommand}" IsCancel="True" ui:Assist.FocusOnLoad="True" />
+                    <Button x:Name="ConfirmButton" Style="{StaticResource Button.Primary}" Content="{Binding ConfirmText}" Margin="10,0,0,0" Command="{Binding ConfirmCommand}" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsDestructive}" Value="True">
+                <Setter TargetName="ConfirmButton" Property="Style" Value="{StaticResource Button.Danger}" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:SecretEditorSheet}">
+        <Border Style="{StaticResource Sheet}" Width="520">
+            <StackPanel>
+                <DockPanel>
+                    <Border DockPanel.Dock="Right" Background="{DynamicResource Brush.SecondaryButton}" CornerRadius="9" Padding="2" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Style="{StaticResource Segment}" Content="Key" IsChecked="{Binding IsKey}" GroupName="Kind" />
+                            <RadioButton Style="{StaticResource Segment}" Content="Note" IsChecked="{Binding IsNote}" GroupName="Kind" />
+                        </StackPanel>
+                    </Border>
+                    <TextBlock Style="{StaticResource Text.Title}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
+                </DockPanel>
+
+                <TextBox Style="{StaticResource Input}" Margin="0,22,0,0" Tag="{Binding NamePlaceholder}" ui:Assist.FocusOnLoad="True"
+                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBox x:Name="KeyValue" Style="{StaticResource Input.Mono}" Margin="0,10,0,0" Tag="Value"
+                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox x:Name="NoteValue" Style="{StaticResource Input.Multiline}" Margin="0,10,0,0" Height="200" Tag="Write anything here" Visibility="Collapsed"
+                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Style="{StaticResource Text.Error}" Text="{Binding Error}" Margin="2,10,0,0"
+                           Visibility="{Binding Error, Converter={StaticResource PresentToVisibility}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+                    <Button Style="{StaticResource Button.Secondary}" Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Style="{StaticResource Button.Primary}" Content="{Binding ConfirmText}" Margin="10,0,0,0" Command="{Binding SaveCommand}" IsDefault="True" />
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        <DataTemplate.Triggers>
+            <DataTrigger Binding="{Binding IsNote}" Value="True">
+                <Setter TargetName="KeyValue" Property="Visibility" Value="Collapsed" />
+                <Setter TargetName="NoteValue" Property="Visibility" Value="Visible" />
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+
+    <DataTemplate DataType="{x:Type vm:ChangePassphraseSheet}">
+        <Border Style="{StaticResource Sheet}" Width="420">
+            <StackPanel>
+                <TextBlock Style="{StaticResource Text.Title}" Text="Change passphrase" />
+                <TextBlock Style="{StaticResource Text.Secondary}" Margin="0,6,0,0"
+                           Text="Backups made from now on use the new passphrase. Older daily backups still need the old one." />
+                <PasswordBox Style="{StaticResource Input.Password}" Tag="Current passphrase" Margin="0,20,0,0" ui:Assist.FocusOnLoad="True"
+                             ui:PasswordBoxAssist.Password="{Binding Current, UpdateSourceTrigger=PropertyChanged}" />
+                <PasswordBox Style="{StaticResource Input.Password}" Tag="New passphrase" Margin="0,16,0,0"
+                             ui:PasswordBoxAssist.Password="{Binding New, UpdateSourceTrigger=PropertyChanged}" />
+                <PasswordBox Style="{StaticResource Input.Password}" Tag="New passphrase again" Margin="0,10,0,0"
+                             ui:PasswordBoxAssist.Password="{Binding Confirm, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBlock Style="{StaticResource Text.Error}" Text="{Binding Error}" Margin="2,10,0,0"
+                           Visibility="{Binding Error, Converter={StaticResource PresentToVisibility}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,24,0,0">
+                    <Button Style="{StaticResource Button.Secondary}" Content="Cancel" Command="{Binding CancelCommand}" IsCancel="True" />
+                    <Button Style="{StaticResource Button.Primary}" Margin="10,0,0,0" Command="{Binding SaveCommand}" IsDefault="True">
+                        <Grid>
+                            <TextBlock Text="Change" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                            <TextBlock Text="Changing…" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                        </Grid>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+</ResourceDictionary>

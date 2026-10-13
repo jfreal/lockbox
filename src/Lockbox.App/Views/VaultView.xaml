@@ -1,0 +1,219 @@
+<UserControl x:Class="Lockbox.App.Views.VaultView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Lockbox.App.ViewModels"
+             xmlns:ui="clr-namespace:Lockbox.App.Controls">
+    <UserControl.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding AddSecretCommand}" />
+    </UserControl.InputBindings>
+
+    <UserControl.Resources>
+        <!-- One row in the secrets card. Shared by the project list and search results. -->
+        <DataTemplate x:Key="SecretRow" DataType="{x:Type vm:SecretViewModel}">
+            <Grid x:Name="Row" Background="Transparent">
+                <Grid.InputBindings>
+                    <MouseBinding Gesture="LeftDoubleClick"
+                                  Command="{Binding DataContext.EditSecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}" />
+                </Grid.InputBindings>
+                <Border x:Name="Separator" Height="1" VerticalAlignment="Top" Margin="66,0,0,0" Background="{DynamicResource Brush.Separator}">
+                    <Border.Visibility>
+                        <MultiBinding Converter="{StaticResource DividerVisibility}">
+                            <Binding />
+                            <Binding Path="ItemsSource" RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                            <Binding Path="ItemsSource.Count" RelativeSource="{RelativeSource AncestorType=ItemsControl}" />
+                        </MultiBinding>
+                    </Border.Visibility>
+                </Border>
+                <Border x:Name="Highlight" Margin="6,4" CornerRadius="10" Background="Transparent" />
+                <Grid Margin="18,14,14,14">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Border Style="{StaticResource IconTile}" VerticalAlignment="Top">
+                        <TextBlock Style="{StaticResource Icon}" Text="{Binding Glyph}" FontSize="14" Foreground="{DynamicResource Brush.Accent}" />
+                    </Border>
+                    <StackPanel Grid.Column="1" Margin="14,0,16,0" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Text.Headline}" Text="{Binding Name}" />
+                            <Border Margin="8,0,0,0" Padding="7,1,7,2" CornerRadius="6" VerticalAlignment="Center" Background="{DynamicResource Brush.SecondaryButton}"
+                                    Visibility="{Binding ShowProject, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="{Binding ProjectName}" FontSize="11.5" Foreground="{DynamicResource Brush.TextSecondary}" />
+                            </Border>
+                        </StackPanel>
+                        <TextBlock x:Name="Value" Style="{StaticResource Text.Mono}" Text="{Binding DisplayValue}" Margin="0,4,0,0"
+                                   TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" Margin="0,1,0,0">
+                        <StackPanel x:Name="HoverActions" Orientation="Horizontal" Visibility="Hidden">
+                            <Button Style="{StaticResource Button.Icon}" Content="&#xE70F;" ToolTip="Edit"
+                                    Command="{Binding DataContext.EditSecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                            <Button Style="{StaticResource Button.IconDanger}" Content="&#xE74D;" ToolTip="Delete"
+                                    Command="{Binding DataContext.DeleteSecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                        </StackPanel>
+                        <Button Style="{StaticResource Button.Icon}" Content="{Binding RevealGlyph}" ToolTip="{Binding RevealTip}"
+                                Command="{Binding DataContext.ToggleRevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                        <Button Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy"
+                                Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding IsRevealed}" Value="True">
+                    <Setter TargetName="Value" Property="TextWrapping" Value="Wrap" />
+                    <Setter TargetName="Value" Property="Foreground" Value="{DynamicResource Brush.Text}" />
+                </DataTrigger>
+                <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
+                    <Setter TargetName="HoverActions" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="Highlight" Property="Background" Value="{DynamicResource Brush.Hover}" />
+                </Trigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="272" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ===== Sidebar ===== -->
+        <Border Margin="10,2,0,10" CornerRadius="16" Background="{DynamicResource Brush.SidebarBg}" Padding="12,14,12,10">
+            <DockPanel>
+                <Grid DockPanel.Dock="Top">
+                    <TextBox x:Name="SearchBox" Style="{StaticResource Input.Search}" Tag="Search all secrets"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}">
+                        <TextBox.InputBindings>
+                            <KeyBinding Key="Escape" Command="{Binding ClearSearchCommand}" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" FontSize="13" HorizontalAlignment="Left" Margin="13,0,0,0"
+                               Foreground="{DynamicResource Brush.TextTertiary}" IsHitTestVisible="False" />
+                    <Button Style="{StaticResource Button.Icon}" Content="&#xE711;" FontSize="10" Width="24" Height="24" HorizontalAlignment="Right" Margin="0,0,6,0"
+                            ToolTip="Clear" Command="{Binding ClearSearchCommand}"
+                            Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}" />
+                </Grid>
+
+                <TextBlock DockPanel.Dock="Top" Style="{StaticResource Text.Caption}" Text="Projects" Margin="10,22,0,6" />
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                    <Border Height="1" Background="{DynamicResource Brush.CardBorder}" Margin="6,0,6,8" />
+                    <Button Style="{StaticResource Button.Sidebar}" Command="{Binding NewProjectCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="18" />
+                            <TextBlock Text="New project" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Button.Sidebar}" Command="{Binding OpenImportCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8B5;" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="18" />
+                            <TextBlock Text="Import from text" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Button.Sidebar}" Command="{Binding OpenSettingsCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="18" />
+                            <TextBlock Text="Settings" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource Button.Sidebar}" Command="{Binding LockCommand}" ToolTip="Ctrl+L">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource Icon}" Text="&#xE72E;" FontSize="13" Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" Width="18" />
+                            <TextBlock Text="Lock now" Margin="10,0,0,0" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <ListBox Style="{StaticResource SidebarList}" ItemsSource="{Binding Projects}" SelectedItem="{Binding SelectedProject}"
+                         PreviewMouseLeftButtonDown="OnProjectListClicked">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:ProjectViewModel}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="14" Foreground="{DynamicResource Brush.Accent}" />
+                                <TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="13.5" Margin="11,0,8,0" TextTrimming="CharacterEllipsis"
+                                           Foreground="{DynamicResource Brush.Text}" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="12" Foreground="{DynamicResource Brush.TextTertiary}" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- ===== Main ===== -->
+        <Grid Grid.Column="1">
+
+            <!-- No projects yet -->
+            <StackPanel Width="420" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,60"
+                        Visibility="{Binding ShowEmptyState, Converter={StaticResource BoolToVisibility}}">
+                <Border Width="64" Height="64" CornerRadius="20" Background="{DynamicResource Brush.AccentSoft}" HorizontalAlignment="Center">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8B7;" FontSize="26" Foreground="{DynamicResource Brush.Accent}" />
+                </Border>
+                <TextBlock Style="{StaticResource Text.Title}" Text="Start with a project" HorizontalAlignment="Center" Margin="0,22,0,0" FontSize="24" />
+                <TextBlock Style="{StaticResource Text.Secondary}" TextAlignment="Center" Margin="0,10,0,0"
+                           Text="Make one project for each app or client. Or bring everything in from your Notepad files at once." />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,26,0,0">
+                    <Button Style="{StaticResource Button.Primary}" Content="New project" Command="{Binding NewProjectCommand}" />
+                    <Button Style="{StaticResource Button.Secondary}" Content="Import from text" Margin="10,0,0,0" Command="{Binding OpenImportCommand}" />
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Selected project -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False"
+                          Visibility="{Binding ShowProject, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel MaxWidth="780" Margin="52,30,52,56">
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Button Style="{StaticResource Button.Icon}" Content="&#xE70F;" ToolTip="Rename project" Command="{Binding RenameProjectCommand}" />
+                            <Button Style="{StaticResource Button.IconDanger}" Content="&#xE74D;" ToolTip="Delete project" Command="{Binding DeleteProjectCommand}" Margin="2,0,0,0" />
+                            <Button Style="{StaticResource Button.Primary}" Margin="12,0,0,0" Command="{Binding AddSecretCommand}" ToolTip="Ctrl+N">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11" Foreground="#FFFFFF" />
+                                    <TextBlock Text="Add" Margin="8,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel>
+                            <TextBlock Style="{StaticResource Text.LargeTitle}" Text="{Binding SelectedProject.Name}" />
+                            <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding SelectedProject.CountText}" Margin="1,2,0,0" />
+                        </StackPanel>
+                    </DockPanel>
+
+                    <Border Style="{StaticResource Card}" Margin="0,26,0,0" Padding="0,2"
+                            Visibility="{Binding SelectedProject.HasSecrets, Converter={StaticResource BoolToVisibility}}">
+                        <ItemsControl ItemsSource="{Binding SelectedProject.Secrets}" ItemTemplate="{StaticResource SecretRow}" Focusable="False" />
+                    </Border>
+
+                    <Border Style="{StaticResource Card}" Margin="0,26,0,0" Padding="32,40"
+                            Visibility="{Binding SelectedProject.HasSecrets, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Style="{StaticResource Text.Headline}" Text="No secrets yet" HorizontalAlignment="Center" FontSize="15" />
+                            <TextBlock Style="{StaticResource Text.Secondary}" Text="Add an API key, a password, or a note." HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            <Button Style="{StaticResource Button.Secondary}" Content="Add a secret" Margin="0,18,0,0" HorizontalAlignment="Center" Command="{Binding AddSecretCommand}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Search results -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False"
+                          Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel MaxWidth="780" Margin="52,30,52,56">
+                    <TextBlock Style="{StaticResource Text.LargeTitle}" Text="Search" />
+                    <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding SearchSummary}" Margin="1,2,0,0" />
+                    <Border Style="{StaticResource Card}" Margin="0,26,0,0" Padding="0,2"
+                            Visibility="{Binding HasSearchResults, Converter={StaticResource BoolToVisibility}}">
+                        <ItemsControl ItemsSource="{Binding SearchResults}" ItemTemplate="{StaticResource SecretRow}" Focusable="False" />
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

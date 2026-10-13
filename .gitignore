@@ -1,0 +1,11 @@
+bin/
+obj/
+publish/
+*.user
+.vs/
+TestResults/
+
+# Never commit a vault, even an encrypted one.
+*.lockbox
+*.lockbox.tmp
+settings.json

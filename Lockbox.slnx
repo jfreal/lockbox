@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lockbox.App/Lockbox.App.csproj" />
+    <Project Path="src/Lockbox.Core/Lockbox.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lockbox.Tests/Lockbox.Tests.csproj" />
+  </Folder>
+</Solution>
