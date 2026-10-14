@@ -29,14 +29,23 @@ public sealed partial class VaultViewModel : ObservableObject
     public partial ProjectViewModel? SelectedProject { get; set; }
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsSearching), nameof(ShowProject), nameof(ShowEmptyState))]
+    [NotifyPropertyChangedFor(nameof(IsSearching), nameof(ShowSearch), nameof(ShowProject), nameof(ShowEmptyState))]
     public partial string SearchText { get; set; } = "";
+
+    /// <summary>The note open in the full-pane editor, if any. It covers the project and search views.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowNote), nameof(ShowSearch), nameof(ShowProject), nameof(ShowEmptyState))]
+    public partial NoteEditorViewModel? EditingNote { get; set; }
 
     public bool IsSearching => !string.IsNullOrWhiteSpace(SearchText);
 
-    public bool ShowProject => !IsSearching && SelectedProject is not null;
+    public bool ShowNote => EditingNote is not null;
 
-    public bool ShowEmptyState => !IsSearching && Projects.Count == 0;
+    public bool ShowSearch => IsSearching && !ShowNote;
+
+    public bool ShowProject => !IsSearching && !ShowNote && SelectedProject is not null;
+
+    public bool ShowEmptyState => !IsSearching && !ShowNote && Projects.Count == 0;
 
     public string SearchSummary => SearchResults.Count switch
     {
@@ -47,9 +56,19 @@ public sealed partial class VaultViewModel : ObservableObject
 
     public bool HasSearchResults => SearchResults.Count > 0;
 
-    partial void OnSelectedProjectChanged(ProjectViewModel? oldValue, ProjectViewModel? newValue) => oldValue?.HideAll();
+    partial void OnSelectedProjectChanged(ProjectViewModel? oldValue, ProjectViewModel? newValue)
+    {
+        oldValue?.HideAll();
+        if (EditingNote is { } editor && editor.Project != newValue)
+            CloseNote();
+    }
 
-    partial void OnSearchTextChanged(string value) => RunSearch();
+    partial void OnSearchTextChanged(string value)
+    {
+        if (IsSearching)
+            CloseNote();
+        RunSearch();
+    }
 
     private void RunSearch()
     {
@@ -138,6 +157,7 @@ public sealed partial class VaultViewModel : ObservableObject
             IsDestructive = true,
             OnConfirm = () =>
             {
+                CloseNoteIfIn(project);
                 var index = Projects.IndexOf(project);
                 _data.Projects.Remove(project.Model);
                 Projects.Remove(project);
@@ -155,7 +175,7 @@ public sealed partial class VaultViewModel : ObservableObject
 
         _shell.OpenSheet(new SecretEditorSheet(_shell)
         {
-            Title = $"New secret in {project.Name}",
+            Title = $"New key in {project.Name}",
             ConfirmText = "Add",
             OnSave = (kind, name, value) =>
             {
@@ -172,6 +192,12 @@ public sealed partial class VaultViewModel : ObservableObject
             return;
 
         var original = Original(secret);
+        if (original.IsNote)
+        {
+            OpenNote(original);
+            return;
+        }
+
         _shell.OpenSheet(new SecretEditorSheet(_shell)
         {
             Title = "Edit secret",
@@ -235,10 +261,49 @@ public sealed partial class VaultViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void OpenImport() => _shell.CurrentScreen = new ImportViewModel(_shell, this, _data);
+    private void NewNote()
+    {
+        if (SelectedProject is { } project)
+            OpenEditor(new NoteEditorViewModel(_shell, this, project, null));
+    }
+
+    public void OpenNote(SecretViewModel note)
+    {
+        // Show the note's own project behind the editor, so closing it lands somewhere sensible.
+        if (IsSearching)
+            SearchText = "";
+        SelectedProject = note.Project;
+        OpenEditor(new NoteEditorViewModel(_shell, this, note.Project, note));
+    }
+
+    private void OpenEditor(NoteEditorViewModel editor)
+    {
+        CloseNote();
+        EditingNote = editor;
+    }
+
+    /// <summary>Saves and closes the open note. Called before locking, navigating, or opening another note.</summary>
+    public void CloseNote(NoteEditorViewModel? only = null)
+    {
+        if (EditingNote is not { } editor || (only is not null && only != editor))
+            return;
+        EditingNote = null;
+        editor.Commit();
+    }
 
     [RelayCommand]
-    private void OpenSettings() => _shell.CurrentScreen = new SettingsViewModel(_shell);
+    private void OpenImport()
+    {
+        CloseNote();
+        _shell.CurrentScreen = new ImportViewModel(_shell, this, _data);
+    }
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        CloseNote();
+        _shell.CurrentScreen = new SettingsViewModel(_shell);
+    }
 
     [RelayCommand]
     private void Lock() => _shell.Lock();
@@ -278,5 +343,12 @@ public sealed partial class VaultViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(ShowEmptyState));
         OnPropertyChanged(nameof(ShowProject));
+    }
+
+    // Project deletion while its note is open: close the editor first.
+    private void CloseNoteIfIn(ProjectViewModel project)
+    {
+        if (EditingNote?.Project == project)
+            CloseNote();
     }
 }

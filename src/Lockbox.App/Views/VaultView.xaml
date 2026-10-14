@@ -5,17 +5,13 @@
              xmlns:ui="clr-namespace:Lockbox.App.Controls">
     <UserControl.InputBindings>
         <KeyBinding Key="N" Modifiers="Control" Command="{Binding AddSecretCommand}" />
+        <KeyBinding Key="N" Modifiers="Control+Shift" Command="{Binding NewNoteCommand}" />
     </UserControl.InputBindings>
 
     <UserControl.Resources>
         <!-- One row in the secrets card. Shared by the project list and search results. -->
         <DataTemplate x:Key="SecretRow" DataType="{x:Type vm:SecretViewModel}">
-            <Grid x:Name="Row" Background="Transparent">
-                <Grid.InputBindings>
-                    <MouseBinding Gesture="LeftDoubleClick"
-                                  Command="{Binding DataContext.EditSecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}" />
-                </Grid.InputBindings>
+            <Grid x:Name="Row" Background="Transparent" MouseLeftButtonDown="OnRowMouseDown">
                 <Border x:Name="Separator" Height="1" VerticalAlignment="Top" Margin="66,0,0,0" Background="{DynamicResource Brush.Separator}">
                     <Border.Visibility>
                         <MultiBinding Converter="{StaticResource DividerVisibility}">
@@ -173,10 +169,16 @@
                         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
                             <Button Style="{StaticResource Button.Icon}" Content="&#xE70F;" ToolTip="Rename project" Command="{Binding RenameProjectCommand}" />
                             <Button Style="{StaticResource Button.IconDanger}" Content="&#xE74D;" ToolTip="Delete project" Command="{Binding DeleteProjectCommand}" Margin="2,0,0,0" />
-                            <Button Style="{StaticResource Button.Primary}" Margin="12,0,0,0" Command="{Binding AddSecretCommand}" ToolTip="Ctrl+N">
+                            <Button Style="{StaticResource Button.Secondary}" Margin="12,0,0,0" Command="{Binding NewNoteCommand}" ToolTip="Ctrl+Shift+N">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE70B;" FontSize="12" Foreground="{DynamicResource Brush.Text}" />
+                                    <TextBlock Text="New note" Margin="8,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource Button.Primary}" Margin="8,0,0,0" Command="{Binding AddSecretCommand}" ToolTip="Ctrl+N">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11" Foreground="#FFFFFF" />
-                                    <TextBlock Text="Add" Margin="8,0,0,0" />
+                                    <TextBlock Text="Add key" Margin="8,0,0,0" />
                                 </StackPanel>
                             </Button>
                         </StackPanel>
@@ -195,8 +197,11 @@
                             Visibility="{Binding SelectedProject.HasSecrets, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Style="{StaticResource Text.Headline}" Text="No secrets yet" HorizontalAlignment="Center" FontSize="15" />
-                            <TextBlock Style="{StaticResource Text.Secondary}" Text="Add an API key, a password, or a note." HorizontalAlignment="Center" Margin="0,6,0,0" />
-                            <Button Style="{StaticResource Button.Secondary}" Content="Add a secret" Margin="0,18,0,0" HorizontalAlignment="Center" Command="{Binding AddSecretCommand}" />
+                            <TextBlock Style="{StaticResource Text.Secondary}" Text="Add an API key or password, or write a note." HorizontalAlignment="Center" Margin="0,6,0,0" />
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,18,0,0">
+                                <Button Style="{StaticResource Button.Secondary}" Content="Add a key" Command="{Binding AddSecretCommand}" />
+                                <Button Style="{StaticResource Button.Secondary}" Content="Write a note" Margin="8,0,0,0" Command="{Binding NewNoteCommand}" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
                 </StackPanel>
@@ -204,7 +209,7 @@
 
             <!-- Search results -->
             <ScrollViewer VerticalScrollBarVisibility="Auto" Focusable="False"
-                          Visibility="{Binding IsSearching, Converter={StaticResource BoolToVisibility}}">
+                          Visibility="{Binding ShowSearch, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel MaxWidth="780" Margin="52,30,52,56">
                     <TextBlock Style="{StaticResource Text.LargeTitle}" Text="Search" />
                     <TextBlock Style="{StaticResource Text.Secondary}" Text="{Binding SearchSummary}" Margin="1,2,0,0" />
@@ -214,6 +219,32 @@
                     </Border>
                 </StackPanel>
             </ScrollViewer>
+
+            <!-- Note editor -->
+            <DockPanel MaxWidth="820" Margin="52,22,52,28" DataContext="{Binding EditingNote}"
+                       Visibility="{Binding DataContext.ShowNote, RelativeSource={RelativeSource AncestorType=UserControl}, Converter={StaticResource BoolToVisibility}}">
+                <DockPanel.InputBindings>
+                    <KeyBinding Key="Escape" Command="{Binding CloseCommand}" />
+                </DockPanel.InputBindings>
+                <DockPanel DockPanel.Dock="Top">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource Text.Footnote}" Text="{Binding Status}" VerticalAlignment="Center" Margin="0,0,12,0" />
+                        <Button Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy the whole note" Command="{Binding CopyAllCommand}" />
+                        <Button Style="{StaticResource Button.IconDanger}" Content="&#xE74D;" ToolTip="Delete note" Command="{Binding DeleteCommand}" Margin="2,0,0,0" />
+                        <Button Style="{StaticResource Button.Primary}" Content="Done" Margin="12,0,0,0" Command="{Binding CloseCommand}" ToolTip="Esc" />
+                    </StackPanel>
+                    <Button Style="{StaticResource Button.Plain}" HorizontalAlignment="Left" Padding="0,0,12,0" Content="{Binding BackText}" Command="{Binding CloseCommand}" />
+                </DockPanel>
+                <TextBox x:Name="NoteTitle" DockPanel.Dock="Top" Style="{StaticResource Input.Bare}" Margin="0,18,0,0" Tag="Title"
+                         FontFamily="{StaticResource Font.Display}" FontSize="28" FontWeight="SemiBold"
+                         Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                <Border Style="{StaticResource Card}" Margin="0,16,0,0" Padding="22,18">
+                    <TextBox x:Name="NoteBody" Style="{StaticResource Input.Bare}" Tag="Start writing. Everything here is encrypted."
+                             AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                             VerticalScrollBarVisibility="Auto" FontSize="14.5"
+                             Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}" />
+                </Border>
+            </DockPanel>
         </Grid>
     </Grid>
 </UserControl>

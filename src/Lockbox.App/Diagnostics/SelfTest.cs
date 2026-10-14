@@ -188,6 +188,51 @@ internal static class SelfTest
         vault = shell.Vault!;
         Check("unlock restores data", shell.IsUnlocked && vault.Projects.Single().Secrets.Count == 2);
 
+        // --- Notes ---
+        var alpha = vault.SelectedProject!;
+        vault.NewNoteCommand.Execute(null);
+        Check("new note opens the editor", vault.ShowNote && !vault.ShowProject && vault.EditingNote!.IsNew);
+        vault.EditingNote!.CloseCommand.Execute(null);
+        Check("closing an empty note adds nothing", !vault.ShowNote && alpha.Secrets.Count == 2);
+
+        vault.NewNoteCommand.Execute(null);
+        var noteEditor = vault.EditingNote!;
+        noteEditor.Title = "Runbook";
+        noteEditor.Body = "step one\r\nstep two";
+        await Task.Delay(NoteEditorViewModel.SaveDelay + TimeSpan.FromMilliseconds(600));
+        var runbook = alpha.Secrets.SingleOrDefault(s => s.Name == "Runbook");
+        Check("note saves itself after a pause", runbook is { IsNote: true } && runbook.Value == "step one\nstep two" && noteEditor.Status == "Saved");
+        Check("note text is not on disk in plain text", !File.ReadAllText(vaultPath).Contains("step one"));
+        noteEditor.CloseCommand.Execute(null);
+
+        vault.NewNoteCommand.Execute(null);
+        vault.EditingNote!.Body = "\n   first real line   \nmore";
+        vault.EditingNote!.CloseCommand.Execute(null);
+        Check("untitled note is named from its first line", alpha.Secrets.Any(s => s.IsNote && s.Name == "first real line"));
+
+        vault.EditSecretCommand.Execute(runbook);
+        Check("opening a note shows its text", vault.EditingNote is { IsNew: false } open && open.Body == "step one\nstep two");
+        vault.SearchText = "run";
+        Check("searching closes the editor", !vault.ShowNote && vault.ShowSearch);
+        vault.SearchText = "";
+
+        vault.EditSecretCommand.Execute(runbook);
+        vault.EditingNote!.Body = "edited just before locking";
+        vault.LockCommand.Execute(null);
+        unlock = (UnlockViewModel)shell.CurrentScreen!;
+        unlock.Passphrase = Passphrase;
+        await unlock.UnlockWithPassphraseCommand.ExecuteAsync(null);
+        vault = shell.Vault!;
+        alpha = vault.Projects.Single();
+        Check("locking saves the open note first", alpha.Secrets.Single(s => s.Name == "Runbook").Value == "edited just before locking");
+
+        vault.EditSecretCommand.Execute(alpha.Secrets.Single(s => s.Name == "Runbook"));
+        vault.EditingNote!.DeleteCommand.Execute(null);
+        ((ConfirmSheet)shell.Sheet!).ConfirmCommand.Execute(null);
+        Check("deleting a note removes it and closes the editor", !vault.ShowNote && alpha.Secrets.All(s => s.Name != "Runbook"));
+        alpha.Remove(alpha.Secrets.Single(s => s.Name == "first real line"));
+        shell.Save();
+
         // --- Import ---
         vault.OpenImportCommand.Execute(null);
         var import = (ImportViewModel)shell.CurrentScreen!;

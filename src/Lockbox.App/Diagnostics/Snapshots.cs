@@ -111,6 +111,10 @@ internal static class Snapshots
         await CaptureAsync(window, outDir, "06-search" + suffix);
         vault.SearchText = "";
 
+        vault.OpenNote(vault.SelectedProject.Secrets.First(s => s.Name == "Deploy runbook"));
+        await CaptureAsync(window, outDir, "12-note" + suffix);
+        vault.CloseNote();
+
         vault.AddSecretCommand.Execute(null);
         if (shell.Sheet is SecretEditorSheet sheet)
         {
@@ -154,7 +158,8 @@ internal static class Snapshots
                 ("RESEND_API_KEY", "re_7Hd2kQp9_xVb3NmLs", false),
                 ("STRIPE_SECRET_KEY", "sk_test_51NqLz8kPq2Xw", false),
                 ("STRIPE_WEBHOOK_SECRET", "whsec_Qm4p0aZ8", false),
-                ("Recovery codes", "4821-0937\n1170-5524\n9032-6618\n2289-4410", true)),
+                ("Recovery codes", "4821-0937\n1170-5524\n9032-6618\n2289-4410", true),
+                ("Deploy runbook", "Production deploys go out from main.\n\n1. Merge the PR and wait for CI.\n2. Netlify builds automatically. Check the deploy log for warnings.\n3. Run the smoke test: npm run smoke -- --env prod\n4. If the payment page fails, roll back from the Netlify dashboard.\n\nDatabase migrations run before the build. Back up first:\n  pg_dump $DATABASE_URL > backup.sql\n\nOn-call phone tree is in the shared drive under Ops.", true)),
             P("billing-api", ("OPENAI_API_KEY", "sk-proj-4f8Kd0QwErTy7UiOpAsD", false), ("CLOUDFLARE_API_TOKEN", "cf_Zx81RtYvB0", false)),
             P("mobile-app", ("GITHUB_TOKEN", "ghp_A1b2C3d4E5f6G7h8", false), ("SENTRY_DSN", "https://a@o1.ingest.sentry.io/2", false), ("STRIPE_SECRET_KEY", "sk_test_99Xw", false)),
             P("data-pipeline", ("FIREBASE_API_KEY", "AIzaSyD-123456", false)),

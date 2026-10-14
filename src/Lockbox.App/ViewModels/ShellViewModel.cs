@@ -98,6 +98,7 @@ public sealed partial class ShellViewModel : ObservableObject
         if (_vault is null)
             return;
 
+        Vault?.CloseNote();
         Sheet = null;
         Clipboard.ClearIfOurs();
         _vault.Dispose();

@@ -8,7 +8,8 @@ I built it to replace a folder of Notepad files. Password managers are designed 
 
 ## What it does
 
-- Groups secrets by project. A secret is either a key with a name and value, or a free-text note.
+- Groups secrets by project. A secret is either a key with a name and value, or a note.
+- Notes open in a full-size editor for runbooks, server details, recovery codes and anything else that isn't a single value. The editor saves a second after you stop typing, and again when you close it or Lockbox locks.
 - Hides every value until you press the eye button.
 - Copies a value without it landing in Windows clipboard history or cloud clipboard, and clears the clipboard after 30 seconds.
 - Searches across all projects by secret name or project name. Ctrl+F jumps to search.
@@ -18,9 +19,11 @@ I built it to replace a folder of Notepad files. Password managers are designed 
 - Writes an encrypted copy to your Dropbox folder on every save, plus one dated copy per day for the last 10 days.
 - Follows the Windows light or dark setting.
 
-| Dark mode | Import review |
+| Note editor | Dark mode |
 |---|---|
-| ![Dark mode](docs/screenshots/projects-dark.png) | ![Import review](docs/screenshots/import.png) |
+| ![Note editor](docs/screenshots/note.png) | ![Dark mode](docs/screenshots/projects-dark.png) |
+
+![Import review](docs/screenshots/import.png)
 
 ## Install
 
@@ -39,10 +42,12 @@ On first launch, Lockbox asks for a passphrase of at least 16 characters. Five o
 | Keys | Action |
 |---|---|
 | Ctrl+F | Search all secrets |
-| Ctrl+N | Add a secret to the current project |
+| Ctrl+N | Add a key to the current project |
+| Ctrl+Shift+N | Write a new note in the current project |
 | Ctrl+L | Lock now |
-| Esc | Close the open dialog or clear the search |
-| Double-click a row | Edit that secret |
+| Esc | Close the open dialog or note, or clear the search |
+| Click a note | Open it in the editor |
+| Double-click a key | Edit that key |
 
 ## Backups and moving to a new PC
 

@@ -35,12 +35,20 @@ public sealed partial class ProjectViewModel : ObservableObject
 
     public int Count => Secrets.Count;
 
-    public string CountText => Secrets.Count switch
+    public string CountText
     {
-        0 => "No secrets yet",
-        1 => "1 secret",
-        var n => $"{n} secrets",
-    };
+        get
+        {
+            var notes = Secrets.Count(s => s.IsNote);
+            var keys = Secrets.Count - notes;
+            var parts = new List<string>(2);
+            if (keys > 0)
+                parts.Add(keys == 1 ? "1 key" : $"{keys} keys");
+            if (notes > 0)
+                parts.Add(notes == 1 ? "1 note" : $"{notes} notes");
+            return parts.Count == 0 ? "No secrets yet" : string.Join(" and ", parts);
+        }
+    }
 
     public bool HasSecrets => Secrets.Count > 0;
 
