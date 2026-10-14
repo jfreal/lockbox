@@ -129,6 +129,11 @@ public sealed partial class ImportViewModel(ShellViewModel shell, VaultViewModel
             RawText = RawText.Trim().Length == 0 ? text : RawText.TrimEnd() + Environment.NewLine + Environment.NewLine + text;
             FindSecrets();
         }
+        catch (UnauthorizedAccessException)
+        {
+            // Not an IOException. Common for files in protected folders, or another app's private storage.
+            Error = $"Windows won't let Lockbox read {Path.GetFileName(dialog.FileName)}. Copy it to Documents and open the copy, or open it in Notepad and paste the text here.";
+        }
         catch (IOException ex)
         {
             Error = ErrorText.Of(ex);

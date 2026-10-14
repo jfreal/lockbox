@@ -156,7 +156,7 @@ public sealed partial class ShellViewModel : ObservableObject
         {
             Settings.Save(SettingsPath);
         }
-        catch (IOException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             // Settings are conveniences; the vault itself is unaffected.
         }
