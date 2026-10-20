@@ -96,11 +96,19 @@ public sealed partial class SecretEditorSheet(ShellViewModel shell) : Observable
             return;
         }
 
-        // Keys are single values: trim stray spaces and newlines from pasting. Notes keep their text as-is.
-        var value = IsNote ? Value.Replace("\r\n", "\n") : Value.Trim();
+        var value = CleanValue();
         shell.CloseSheet();
         OnSave(IsNote ? SecretKind.Note : SecretKind.KeyValue, name, value);
     }
+
+    [RelayCommand]
+    private void CopyName() => shell.CopyToClipboard(Name.Trim(), IsNote ? "the title" : "the name");
+
+    [RelayCommand]
+    private void CopyValue() => shell.CopyToClipboard(CleanValue(), IsNote ? "the note" : "the value");
+
+    // Keys are single values: trim stray spaces and newlines from pasting. Notes keep their text as-is.
+    private string CleanValue() => IsNote ? Value.Replace("\r\n", "\n") : Value.Trim();
 
     [RelayCommand]
     public void Cancel() => shell.CloseSheet();

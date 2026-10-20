@@ -33,11 +33,14 @@
                     </Border>
                     <StackPanel Grid.Column="1" Margin="14,0,16,0" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Style="{StaticResource Text.Headline}" Text="{Binding Name}" />
+                            <TextBlock Style="{StaticResource Text.Headline}" Text="{Binding Name}" VerticalAlignment="Center" />
                             <Border Margin="8,0,0,0" Padding="7,1,7,2" CornerRadius="6" VerticalAlignment="Center" Background="{DynamicResource Brush.SecondaryButton}"
                                     Visibility="{Binding ShowProject, Converter={StaticResource BoolToVisibility}}">
                                 <TextBlock Text="{Binding ProjectName}" FontSize="11.5" Foreground="{DynamicResource Brush.TextSecondary}" />
                             </Border>
+                            <Button x:Name="CopyName" Style="{StaticResource Button.Icon}" Content="&#xE8C8;" Width="24" Height="24" FontSize="11"
+                                    Margin="4,-4,0,-4" ToolTip="Copy name" Visibility="Hidden"
+                                    Command="{Binding DataContext.CopyNameCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
                         </StackPanel>
                         <TextBlock x:Name="Value" Style="{StaticResource Text.Mono}" Text="{Binding DisplayValue}" Margin="0,4,0,0"
                                    TextTrimming="CharacterEllipsis" />
@@ -63,6 +66,7 @@
                 </DataTrigger>
                 <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
                     <Setter TargetName="HoverActions" Property="Visibility" Value="Visible" />
+                    <Setter TargetName="CopyName" Property="Visibility" Value="Visible" />
                     <Setter TargetName="Highlight" Property="Background" Value="{DynamicResource Brush.Hover}" />
                 </Trigger>
             </DataTemplate.Triggers>
@@ -235,9 +239,13 @@
                     </StackPanel>
                     <Button Style="{StaticResource Button.Plain}" HorizontalAlignment="Left" Padding="0,0,12,0" Content="{Binding BackText}" Command="{Binding CloseCommand}" />
                 </DockPanel>
-                <TextBox x:Name="NoteTitle" DockPanel.Dock="Top" Style="{StaticResource Input.Bare}" Margin="0,18,0,0" Tag="Title"
-                         FontFamily="{StaticResource Font.Display}" FontSize="28" FontWeight="SemiBold"
-                         Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                <DockPanel DockPanel.Dock="Top" Margin="0,18,0,0">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy title" Margin="12,0,0,0"
+                            VerticalAlignment="Center" Command="{Binding CopyTitleCommand}" />
+                    <TextBox x:Name="NoteTitle" Style="{StaticResource Input.Bare}" Tag="Title"
+                             FontFamily="{StaticResource Font.Display}" FontSize="28" FontWeight="SemiBold"
+                             Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" />
+                </DockPanel>
                 <Border Style="{StaticResource Card}" Margin="0,16,0,0" Padding="22,18">
                     <TextBox x:Name="NoteBody" Style="{StaticResource Input.Bare}" Tag="Start writing. Everything here is encrypted."
                              AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" VerticalContentAlignment="Top"

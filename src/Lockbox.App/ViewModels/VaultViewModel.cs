@@ -247,10 +247,15 @@ public sealed partial class VaultViewModel : ObservableObject
     [RelayCommand]
     private void Copy(SecretViewModel? secret)
     {
-        if (secret is null)
-            return;
-        _shell.Clipboard.Copy(secret.Value);
-        _shell.ShowToast($"Copied {secret.Name}. Clipboard clears in 30 seconds.");
+        if (secret is not null)
+            _shell.CopyToClipboard(secret.Value, secret.Name);
+    }
+
+    [RelayCommand]
+    private void CopyName(SecretViewModel? secret)
+    {
+        if (secret is not null)
+            _shell.CopyToClipboard(secret.Name, $"the name {secret.Name}");
     }
 
     [RelayCommand]
