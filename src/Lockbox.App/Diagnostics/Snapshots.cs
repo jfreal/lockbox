@@ -103,7 +103,7 @@ internal static class Snapshots
         var vault = shell.Vault!;
         vault.SelectedProject = vault.Projects.First(p => p.Name == "acme-web");
         vault.SelectedProject.Secrets.First(s => s.Name == "DATABASE_URL").IsRevealed = true;
-        shell.ShowToast("Copied STRIPE_SECRET_KEY. Clipboard clears in 30 seconds.");
+        shell.ShowToast("Copied STRIPE_SECRET_KEY. Clipboard clears in 60 seconds.");
         await CaptureAsync(window, outDir, "05-vault" + suffix);
         shell.Toast = null;
 

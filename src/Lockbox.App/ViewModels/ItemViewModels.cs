@@ -138,6 +138,8 @@ public sealed partial class SecretViewModel(Secret model, ProjectViewModel proje
 
     public string RevealTip => IsRevealed ? "Hide" : "Show";
 
+    public string CopyTip => IsNote ? "Copy note" : "Copy value";
+
     public SecretViewModel ForSearch() => new(Model, Project) { ShowProject = true };
 
     public void Update(SecretKind kind, string name, string value)

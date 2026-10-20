@@ -11,7 +11,7 @@ namespace Lockbox.App.Services;
 /// </summary>
 public sealed class SecureClipboard
 {
-    public static readonly TimeSpan ClearAfter = TimeSpan.FromSeconds(30);
+    public static readonly TimeSpan ClearAfter = TimeSpan.FromSeconds(60);
 
     private readonly DispatcherTimer _timer;
     private string? _copied;
