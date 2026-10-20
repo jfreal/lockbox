@@ -39,7 +39,7 @@
                                 <TextBlock Text="{Binding ProjectName}" FontSize="11.5" Foreground="{DynamicResource Brush.TextSecondary}" />
                             </Border>
                             <Button x:Name="CopyName" Style="{StaticResource Button.Icon}" Content="&#xE8C8;" Width="24" Height="24" FontSize="11"
-                                    Margin="4,-4,0,-4" ToolTip="Copy name" Visibility="Hidden"
+                                    Margin="4,-4,0,-4" ToolTip="Copy name"
                                     Command="{Binding DataContext.CopyNameCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
                         </StackPanel>
                         <TextBlock x:Name="Value" Style="{StaticResource Text.Mono}" Text="{Binding DisplayValue}" Margin="0,4,0,0"
@@ -54,7 +54,7 @@
                         </StackPanel>
                         <Button Style="{StaticResource Button.Icon}" Content="{Binding RevealGlyph}" ToolTip="{Binding RevealTip}"
                                 Command="{Binding DataContext.ToggleRevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
-                        <Button Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy"
+                        <Button Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="{Binding CopyTip}"
                                 Command="{Binding DataContext.CopyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" />
                     </StackPanel>
                 </Grid>
@@ -66,7 +66,6 @@
                 </DataTrigger>
                 <Trigger SourceName="Row" Property="IsMouseOver" Value="True">
                     <Setter TargetName="HoverActions" Property="Visibility" Value="Visible" />
-                    <Setter TargetName="CopyName" Property="Visibility" Value="Visible" />
                     <Setter TargetName="Highlight" Property="Background" Value="{DynamicResource Brush.Hover}" />
                 </Trigger>
             </DataTemplate.Triggers>

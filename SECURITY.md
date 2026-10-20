@@ -12,12 +12,12 @@ Include the Lockbox commit you tested, your Windows version and steps to reprodu
 - **A leaked backup.** Copies in Dropbox or anywhere else only open with the passphrase. Argon2id with 256 MiB of memory makes each passphrase guess slow and memory-hungry.
 - **Other Windows accounts on the same PC.** The Windows Hello slot is wrapped with DPAPI for your account.
 - **Someone editing the vault file.** AES-GCM authenticates the payload, so any change makes unlock fail instead of loading altered data.
-- **Clipboard leaks.** Copied values carry the Windows flags that keep them out of clipboard history and cloud clipboard, and Lockbox clears the clipboard 30 seconds later if the value is still there.
+- **Clipboard leaks.** Copied values carry the Windows flags that keep them out of clipboard history and cloud clipboard, and Lockbox clears the clipboard 60 seconds later if the value is still there.
 - **Screenshots and screen sharing.** The window sets `WDA_EXCLUDEFROMCAPTURE`, so it appears blank in captures.
 
 ## What it does not protect against
 
-- **Malware running as you while the vault is unlocked.** It can read the app's memory, log keystrokes or read the clipboard during those 30 seconds.
+- **Malware running as you while the vault is unlocked.** It can read the app's memory, log keystrokes or read the clipboard during those 60 seconds.
 - **Malware running as you while the vault is locked**, if you approve a Windows Hello prompt it triggers. Lockbox sets its own window as the prompt's owner and labels it "Unlock Lockbox", but Windows can't prove which program asked.
 - **A weak passphrase.** Backups are exactly as strong as the passphrase. Lockbox requires 16 characters and suggests five or more random words.
 - **Someone who has your passphrase**, or your Windows password and your Hello PIN.

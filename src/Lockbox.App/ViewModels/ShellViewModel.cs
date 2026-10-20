@@ -176,7 +176,7 @@ public sealed partial class ShellViewModel : ObservableObject
         if (text.Length == 0)
             return;
         Clipboard.Copy(text);
-        ShowToast($"Copied {what}. Clipboard clears in 30 seconds.");
+        ShowToast($"Copied {what}. Clipboard clears in {SecureClipboard.ClearAfter.TotalSeconds:0} seconds.");
     }
 
     public void OpenSheet(ISheet sheet) => Sheet = sheet;
