@@ -100,13 +100,10 @@ public sealed partial class NoteEditorViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void CopyAll()
-    {
-        if (Body.Length == 0)
-            return;
-        _shell.Clipboard.Copy(Body);
-        _shell.ShowToast("Copied the note. Clipboard clears in 30 seconds.");
-    }
+    private void CopyAll() => _shell.CopyToClipboard(Body, "the note");
+
+    [RelayCommand]
+    private void CopyTitle() => _shell.CopyToClipboard(Title.Trim(), "the title");
 
     [RelayCommand]
     private void Delete()

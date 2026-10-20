@@ -170,6 +170,15 @@ public sealed partial class ShellViewModel : ObservableObject
         _toastTimer.Start();
     }
 
+    /// <summary>Copies through <see cref="SecureClipboard"/> and says what was copied. Does nothing for empty text.</summary>
+    public void CopyToClipboard(string text, string what)
+    {
+        if (text.Length == 0)
+            return;
+        Clipboard.Copy(text);
+        ShowToast($"Copied {what}. Clipboard clears in 30 seconds.");
+    }
+
     public void OpenSheet(ISheet sheet) => Sheet = sheet;
 
     public void CloseSheet() => Sheet = null;

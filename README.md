@@ -11,7 +11,7 @@ I built it to replace a folder of Notepad files. Password managers are designed 
 - Groups secrets by project. A secret is either a key with a name and value, or a note.
 - Notes open in a full-size editor for runbooks, server details, recovery codes and anything else that isn't a single value. The editor saves a second after you stop typing, and again when you close it or Lockbox locks.
 - Hides every value until you press the eye button.
-- Copies a value without it landing in Windows clipboard history or cloud clipboard, and clears the clipboard after 30 seconds.
+- Copies a value, name or note in one click, from the list or from beside each field when you edit. Nothing copied lands in Windows clipboard history or cloud clipboard, and the clipboard clears after 30 seconds.
 - Searches across all projects by secret name or project name. Ctrl+F jumps to search.
 - Imports messy notes. Paste text or open a file, and Lockbox suggests names, values and projects. Nothing is saved until you review the list and press Import.
 - Unlocks with Windows Hello day to day. Every 14 days it asks for the passphrase instead, so you don't forget it.

@@ -54,13 +54,23 @@
                     <TextBlock Style="{StaticResource Text.Title}" Text="{Binding Title}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="0,0,16,0" />
                 </DockPanel>
 
-                <TextBox Style="{StaticResource Input}" Margin="0,22,0,0" Tag="{Binding NamePlaceholder}" ui:Assist.FocusOnLoad="True"
-                         Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                <DockPanel Margin="0,22,0,0">
+                    <Button DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy" Margin="6,0,0,0"
+                            VerticalAlignment="Center" Command="{Binding CopyNameCommand}" />
+                    <TextBox Style="{StaticResource Input}" Tag="{Binding NamePlaceholder}" ui:Assist.FocusOnLoad="True"
+                             Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                </DockPanel>
 
-                <TextBox x:Name="KeyValue" Style="{StaticResource Input.Mono}" Margin="0,10,0,0" Tag="Value"
-                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
-                <TextBox x:Name="NoteValue" Style="{StaticResource Input.Multiline}" Margin="0,10,0,0" Height="200" Tag="Write anything here" Visibility="Collapsed"
-                         Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                <DockPanel Margin="0,10,0,0">
+                    <Button x:Name="CopyValue" DockPanel.Dock="Right" Style="{StaticResource Button.Icon}" Content="&#xE8C8;" ToolTip="Copy" Margin="6,0,0,0"
+                            VerticalAlignment="Center" Command="{Binding CopyValueCommand}" />
+                    <Grid>
+                        <TextBox x:Name="KeyValue" Style="{StaticResource Input.Mono}" Tag="Value"
+                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBox x:Name="NoteValue" Style="{StaticResource Input.Multiline}" Height="200" Tag="Write anything here" Visibility="Collapsed"
+                                 Text="{Binding Value, UpdateSourceTrigger=PropertyChanged}" />
+                    </Grid>
+                </DockPanel>
 
                 <TextBlock Style="{StaticResource Text.Error}" Text="{Binding Error}" Margin="2,10,0,0"
                            Visibility="{Binding Error, Converter={StaticResource PresentToVisibility}}" />
@@ -74,6 +84,8 @@
             <DataTrigger Binding="{Binding IsNote}" Value="True">
                 <Setter TargetName="KeyValue" Property="Visibility" Value="Collapsed" />
                 <Setter TargetName="NoteValue" Property="Visibility" Value="Visible" />
+                <Setter TargetName="CopyValue" Property="VerticalAlignment" Value="Top" />
+                <Setter TargetName="CopyValue" Property="Margin" Value="6,4,0,0" />
             </DataTrigger>
         </DataTemplate.Triggers>
     </DataTemplate>
