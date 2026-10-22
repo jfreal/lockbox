@@ -27,7 +27,17 @@ I built it to replace a folder of Notepad files. Password managers are designed 
 
 ## Install
 
-You need Windows 10 or 11 and the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Then run this in Windows PowerShell from the repo folder:
+You need Windows 10 or 11.
+
+### Download
+
+Get `Lockbox-win-x64.zip` from the [latest release](https://github.com/jfreal/lockbox/releases/latest), unzip it, and run `Lockbox.exe`. It is one file with .NET built in, so nothing else needs installing. Put it anywhere you like, such as `%LOCALAPPDATA%\Programs\Lockbox`, and pin it to Start.
+
+The exe is not code-signed, so the first launch shows "Windows protected your PC". Choose **More info**, then **Run anyway**.
+
+### Build from source
+
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0). Run this in Windows PowerShell from the repo folder:
 
 ```powershell
 .\install.ps1
@@ -97,6 +107,10 @@ Debug builds of the app add three modes. Each uses a throwaway vault in `%TEMP%`
 | `src/Lockbox.Core` | Encryption, vault file format, backups, import parser. No UI code. |
 | `src/Lockbox.App` | The WPF app, Windows Hello, clipboard and theme handling |
 | `tests/Lockbox.Tests` | xUnit tests for Lockbox.Core |
+
+## Releases
+
+Pushing a tag like `v1.0.1` runs `.github/workflows/release.yml`. It runs the tests, builds a self-contained `Lockbox.exe` stamped with that version, and attaches `Lockbox-win-x64.zip` to a new GitHub release.
 
 ## Limits worth knowing
 

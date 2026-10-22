@@ -1,0 +1,45 @@
+# Builds a self-contained Lockbox.exe and attaches it to a GitHub release.
+# Runs when a version tag is pushed, e.g. v1.0.1. The tag (minus the "v") becomes the app version.
+
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Test
+        run: dotnet test tests/Lockbox.Tests/Lockbox.Tests.csproj -c Release
+
+      - name: Publish
+        shell: pwsh
+        run: |
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          dotnet publish src/Lockbox.App/Lockbox.App.csproj `
+            -c Release -r win-x64 --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:Version=$version `
+            -o publish
+          if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed ($LASTEXITCODE)." }
+          Compress-Archive -Path publish/Lockbox.exe -DestinationPath Lockbox-win-x64.zip
+
+      - name: Create release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create '${{ github.ref_name }}' Lockbox-win-x64.zip --title 'Lockbox ${{ github.ref_name }}' --generate-notes
